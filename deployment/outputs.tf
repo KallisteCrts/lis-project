@@ -24,25 +24,25 @@ output "key_vault_name" {
   value       = azurerm_key_vault.kv.name
 }
 
-output "ml_storage_account_name" {
-  description = "The ml storage account name."
-  value       = var.deploy_data_science_tools ? azurerm_storage_account.ml_storage[0].name : ""
-}
+#output "ml_storage_account_name" {
+#  description = "The ml storage account name."
+#  value       = var.deploy_data_science_tools ? azurerm_storage_account.ml_storage[0].name : ""
+#}
 
-output "data_storage_account_name" {
-  description = "The data storage account name."
-  value       = azurerm_storage_account.data_storage.name
-}
+#output "data_storage_account_name" {
+#  description = "The data storage account name."
+#  value       = azurerm_storage_account.data_storage.name
+#}
 
-output "ml_workspace_name" {
-  description = "The ml workspace name."
-  value       = var.deploy_data_science_tools ? azurerm_machine_learning_workspace.workspace[0].name : ""
-}
+#output "ml_workspace_name" {
+#  description = "The ml workspace name."
+#  value       = var.deploy_data_science_tools ? azurerm_machine_learning_workspace.workspace[0].name : ""
+#}
 
-output "ml_compute_instance_name" {
-  description = "The ml compute instance name."
-  value       = var.deploy_data_science_tools ? azurerm_machine_learning_compute_instance.compute_instance[0].name : ""
-}
+#output "ml_compute_instance_name" {
+#  description = "The ml compute instance name."
+#  value       = var.deploy_data_science_tools ? azurerm_machine_learning_compute_instance.compute_instance[0].name : ""
+#}
 
 output "speechservice_cognitive_name" {
   description = "The speech service name."

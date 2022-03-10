@@ -107,37 +107,38 @@ resource "azurerm_key_vault_secret" "secret_app_container_name" {
   key_vault_id = azurerm_key_vault.kv.id
 }
 
-resource "azurerm_key_vault_secret" "secret_storage_data_name" {
-  name         = "STORAGE-DATA-NAME"
-  value        = azurerm_storage_account.data_storage.name
-  key_vault_id = azurerm_key_vault.kv.id
-}
+#resource "azurerm_key_vault_secret" "secret_storage_data_name" {
+#  name         = "STORAGE-DATA-NAME"
+#  value        = azurerm_storage_account.data_storage.name
+#  key_vault_id = azurerm_key_vault.kv.id
+#}
 
-resource "azurerm_key_vault_secret" "secret_storage_data_key" {
-  name         = "STORAGE-DATA-KEY"
-  value        = azurerm_storage_account.data_storage.primary_access_key
-  key_vault_id = azurerm_key_vault.kv.id
-}
+#resource "azurerm_key_vault_secret" "secret_storage_data_key" {
+#  name         = "STORAGE-DATA-KEY"
+#  value        = azurerm_storage_account.data_storage.primary_access_key
+#  key_vault_id = azurerm_key_vault.kv.id
+#}
+
 
 # Create storage accounts
-resource "azurerm_storage_account" "ml_storage" {
-  count                    = var.deploy_data_science_tools ? 1 : 0
-  name                     = "st${local.name_prefix}ml"
-  location                 = azurerm_resource_group.rg.location
-  resource_group_name      = azurerm_resource_group.rg.name
-  account_tier             = var.storage_account_tier
-  account_replication_type = var.storage_replication_type
-  tags                     = local.required_tags
-}
+#resource "azurerm_storage_account" "ml_storage" {
+#  count                    = var.deploy_data_science_tools ? 1 : 0
+#  name                     = "st${local.name_prefix}ml"
+#  location                 = azurerm_resource_group.rg.location
+#  resource_group_name      = azurerm_resource_group.rg.name
+#  account_tier             = var.storage_account_tier
+#  account_replication_type = var.storage_replication_type
+#  tags                     = local.required_tags
+#}
 
-resource "azurerm_storage_account" "data_storage" {
-  name                     = "st${local.name_prefix}data"
-  location                 = azurerm_resource_group.rg.location
-  resource_group_name      = azurerm_resource_group.rg.name
-  account_tier             = var.storage_account_tier
-  account_replication_type = var.storage_replication_type
-  tags                     = local.required_tags
-}
+#resource "azurerm_storage_account" "data_storage" {
+#  name                     = "st${local.name_prefix}data"
+#  location                 = azurerm_resource_group.rg.location
+#  resource_group_name      = azurerm_resource_group.rg.name
+#  account_tier             = var.storage_account_tier
+#  account_replication_type = var.storage_replication_type
+#  tags                     = local.required_tags
+#}
 
 # Create application insights
 resource "azurerm_application_insights" "insights" {
@@ -149,34 +150,34 @@ resource "azurerm_application_insights" "insights" {
 }
 
 # Create azure ml workspace
-resource "azurerm_machine_learning_workspace" "workspace" {
-  count                   = var.deploy_data_science_tools ? 1 : 0
-  name                    = "mlw${local.name_prefix}"
-  location                = azurerm_resource_group.rg.location
-  resource_group_name     = azurerm_resource_group.rg.name
-  application_insights_id = azurerm_application_insights.insights.id
-  key_vault_id            = azurerm_key_vault.kv.id
-  storage_account_id      = azurerm_storage_account.ml_storage[0].id
-  tags                    = local.required_tags
+#resource "azurerm_machine_learning_workspace" "workspace" {
+#  count                   = var.deploy_data_science_tools ? 1 : 0
+#  name                    = "mlw${local.name_prefix}"
+#  location                = azurerm_resource_group.rg.location
+#  resource_group_name     = azurerm_resource_group.rg.name
+#  application_insights_id = azurerm_application_insights.insights.id
+#  key_vault_id            = azurerm_key_vault.kv.id
+#  storage_account_id      = azurerm_storage_account.ml_storage[0].id
+#  tags                    = local.required_tags
 
-  identity {
-    type = "SystemAssigned"
-  }
-}
+#  identity {
+#    type = "SystemAssigned"
+#  }
+#}
 
 # Create azure ml compute instance
-resource "azurerm_machine_learning_compute_instance" "compute_instance" {
-  count                         = var.deploy_data_science_tools ? 1 : 0
-  name                          = "compute${local.name_prefix}"
-  location                      = azurerm_resource_group.rg.location
-  virtual_machine_size          = var.ml_instance_vm_size
-  machine_learning_workspace_id = azurerm_machine_learning_workspace.workspace[0].id
-  tags                          = local.required_tags
+#resource "azurerm_machine_learning_compute_instance" "compute_instance" {
+#  count                         = var.deploy_data_science_tools ? 1 : 0
+#  name                          = "compute${local.name_prefix}"
+#  location                      = azurerm_resource_group.rg.location
+#  virtual_machine_size          = var.ml_instance_vm_size
+#  machine_learning_workspace_id = azurerm_machine_learning_workspace.workspace[0].id
+#  tags                          = local.required_tags
 
-  identity {
-    type = "SystemAssigned"
-  }
-}
+#  identity {
+#    type = "SystemAssigned"
+#  }
+#}
 
 # Create speech services account
 resource "azurerm_cognitive_account" "speech" {
@@ -229,9 +230,9 @@ resource "azurerm_app_service" "app_container" {
 }
 
 # Create azure cognitive search
-resource "azurerm_search_service" "search" {
-  name                = "search${local.name_prefix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku                 = "basic"
-}
+#resource "azurerm_search_service" "search" {
+#  name                = "search${local.name_prefix}"
+#  resource_group_name = azurerm_resource_group.rg.name
+#  location            = azurerm_resource_group.rg.location
+#  sku                 = "basic"
+#}

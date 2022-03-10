@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+torch
 tensorflow==2.5.0
 transformers
 Authlib==0.15.4

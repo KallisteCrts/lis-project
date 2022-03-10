@@ -3,8 +3,8 @@ import pathlib
 from fastapi import FastAPI, Depends
 from starlette.exceptions import HTTPException
 from transformers import pipeline
-from aad import AadBearerMiddleware, authorize, oauth2_scheme, AadAuthenticationClient, ScopeType, AuthError
-from starlette.middleware.authentication import AuthenticationMiddleware
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 from dotenv import load_dotenv
 from starlette.requests import Request
 import requests
@@ -14,66 +14,48 @@ localenv = os.path.join(dir, "local.env")
 if os.path.exists(localenv):
     load_dotenv(localenv, override=True)
 
-client_id = os.environ.get("CLIENT_ID")
+#client_id = os.environ.get("CLIENT_ID")
 
 # pre fill client id
-swagger_ui_init_oauth = {
-    "usePkceWithAuthorizationCodeGrant": "true",
-    "clientId": client_id,
-    "appName": "LIS",
-}
+#swagger_ui_init_oauth = {
+#    "usePkceWithAuthorizationCodeGrant": "true",
+#    "clientId": client_id,
+#    "appName": "LIS",
+#}
 
-app = FastAPI(
-     swagger_ui_init_oauth=swagger_ui_init_oauth,
-)
+app = FastAPI()
 
 # Add the bearer middleware
-app.add_middleware(AuthenticationMiddleware, backend=AadBearerMiddleware())
+#app.add_middleware(AuthenticationMiddleware, backend=AadBearerMiddleware())
 
-fill_mask = pipeline("fill-mask", model="camembert-base", tokenizer="camembert-base")
+tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-medium")
+model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-medium")
+step= 0
+
+#fill_mask = pipeline("fill-mask", model="camembert-base", tokenizer="camembert-base")
+#fill_mask = pipeline("fill-mask", model= model, tokenizer= tokenizer)
+# Let's chat for 5 lines
+
+    
+    
 
 @app.get('/api/healthcheck', status_code=200, tags=["api"])
 async def healthcheck():
     return 'Ready'
 
 @app.get('/api/autosuggest', tags=["api"]) 
-async def autosuggest(sentence: str, request: Request, token=Depends(oauth2_scheme())):
-    results = fill_mask(sentence)
+async def autosuggest(sentence:str, request: Request):
+    #results = fill_mask(sentence)
+    
+     # encode the new user input, add the eos_token and return a tensor in Pytorch
+    new_user_input_ids = tokenizer.encode(">> User:" + sentence + tokenizer.eos_token, return_tensors='pt')
+
+    # append the new user input tokens to the chat history
+    bot_input_ids = torch.cat([chat_history_ids, new_user_input_ids], dim=-1) if step > 0 else new_user_input_ids
+
+    # generated a response while limiting the total chat history to 1000 tokens, 
+    chat_history_ids = model.generate(bot_input_ids, max_length=1000, pad_token_id=tokenizer.eos_token_id)
+
+    results = "DialoGPT: {}".format(tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True))
     return results
-
-@app.get('/request/me', tags=["request"]) 
-async def request_user_me(request: Request, token=Depends(oauth2_scheme())):
-    return request.user
-
-@app.get('/graph/me', tags=["graph"]) 
-async def graph_me(request: Request, token=Depends(oauth2_scheme())):
-
-    aad_client = AadAuthenticationClient()
-
-    try:
-        # Get a new token on behalf of the user, with new scopes
-        authorized_graph_user = await aad_client.acquire_user_token(
-            user=request.user, scopes=["user.read"], validate=False
-        )
-
-    except AuthError as aex:
-        raise HTTPException(aex.status_code, aex.description)
-    except Exception as ex:
-        httpex = HTTPException(400, "Can't get a token on behalf of the user", ex)
-        raise httpex
-
-    try:
-        response = requests.get("https://graph.microsoft.com/beta/me",
-            auth=authorized_graph_user.auth_token
-        )
-
-        jsonvalue = response.json()
-
-        return jsonvalue
-
-    except AuthError as aex:
-        raise HTTPException(aex.status_code, aex.description)
-    except Exception as ex:
-        httpex = HTTPException(400, "Can't get user's profile", ex)
-        raise httpex
 
