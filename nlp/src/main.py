@@ -1,5 +1,6 @@
 import os
 import pathlib
+import torch
 from fastapi import FastAPI, Depends
 from starlette.exceptions import HTTPException
 from transformers import pipeline
