@@ -19,7 +19,9 @@ ADD /src/main.py /app
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
+RUN pip install torch torchvision --no-cache-dir
+RUN pip install sentence-transformers --no-cache-dir
+RUN pip install nltk --no-cache-dir
 
-
-EXPOSE 3000
+EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
